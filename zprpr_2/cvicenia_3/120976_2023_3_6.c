@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
         {
             if (((int)ch == i) || ((int)ch == i + 32))
             {
-                count[i-65]++;
+                count[i - 65]++;
                 break;
             }
         }
