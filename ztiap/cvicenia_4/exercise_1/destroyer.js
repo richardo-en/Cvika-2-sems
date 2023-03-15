@@ -1,5 +1,5 @@
-import { Enemy } from './enemy.js';
-export class Destroyer extends Enemy {
+import { EnemyWithPositions } from './enemy.js';
+export class Destroyer extends EnemyWithPositions {
   constructor() {
     super()
     this.name = "Pinky Ass Destroyer";
