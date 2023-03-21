@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 void delete_record(char **article_id, char **article_title, char **article_author, char **article_time, char *inputs, int *total_records_count);
-void dealocate(char *inputs, char **article_id, char **article_title, char **article_author, char **article_time, int records_counter);
+void dealocate(char *inputs, char ***article_id, char ***article_title, char ***article_author, char ***article_time, int records_counter);
 
 // Control functions
 void check_id(char *id_list)
@@ -132,13 +132,13 @@ int testing(char **list, int records_count)
     }
 }
 // Additional functions
-void deallocate_array(char **array, int p)
+void deallocate_array(char ***array, int p)
 {
     for (int i = 0; i < p; i++)
     {
-        free(array[i]);
+        free((*array)[i]);
     }
-    free(array);
+    free((*array));
 }
 
 // Assigment functions
@@ -218,73 +218,80 @@ void add_record(char **article_id, char **article_title, char **article_author, 
     }
 }
 
-int load_file(char **article_id, char **article_title, char **article_author, char **article_time, char *inputs, int *total_records_count)
+int load_file(char ***article_id, char ***article_title, char ***article_author, char ***article_time, char *inputs, int *total_records_count)
 {
     int record_counter = 0, read = 0, is_end = 0;
-    char get_string[150];
+    char get_string[50];
 
     if (find_in_inputs('n', inputs) || find_in_inputs('v', inputs))
     {
-        deallocate_array(article_id, *total_records_count);
-        deallocate_array(article_title, *total_records_count);
-        deallocate_array(article_author, *total_records_count);
-        deallocate_array(article_time, *total_records_count);
+        // deallocate_array(*article_id, *total_records_count);
+        // deallocate_array(*article_title, *total_records_count);
+        // deallocate_array(*article_author, *total_records_count);
+        // deallocate_array(*article_time, *total_records_count);
 
         int lines = get_lines();
         *total_records_count = lines;
 
-        article_id = malloc(sizeof(char *) * (*total_records_count));
-        article_title = malloc(sizeof(char *) * (*total_records_count));
-        article_author = malloc(sizeof(char *) * (*total_records_count));
-        article_time = malloc(sizeof(char *) * (*total_records_count));
+        (*article_id) = malloc(sizeof(char **) * (*total_records_count));
+        (*article_title) = malloc(sizeof(char **) * (*total_records_count));
+        (*article_author) = malloc(sizeof(char **) * (*total_records_count));
+        (*article_time) = malloc(sizeof(char **) * (*total_records_count));
 
         for (int i = 0; i < (*total_records_count); i++)
         {
-            article_id[i] = malloc(sizeof(char) * (11));
-            article_title[i] = malloc(sizeof(char) * (80));
-            article_author[i] = malloc(sizeof(char) * (80));
-            article_time[i] = malloc(sizeof(char) * (13));
+            (*article_id)[i] = malloc(sizeof(char *) * (11));
+            (*article_title)[i] = malloc(sizeof(char *) * (80));
+            (*article_author)[i] = malloc(sizeof(char *) * (80));
+            (*article_time)[i] = malloc(sizeof(char *) * (13));
         }
         FILE *data;
         data = fopen("KonferencnyZoznam.txt", "r");
-
-        while (is_end == 0)
+        while(is_end == 0)
         {
             if (fgets(get_string, sizeof(get_string), data) == NULL)
             {
                 is_end = 1;
                 printf("Nacitane data\n");
+            }else{
+                switch (read)
+                {
+                case 0:
+                    strcpy((*article_id)[record_counter], get_string);
+                    read++;
+                    break;
+                case 1:
+                    strcpy((*article_title)[record_counter], get_string);
+                    read++;
+                    break;
+                case 2:
+                    strcpy((*article_author)[record_counter], get_string);
+                    read++;
+                    break;
+                case 3:
+                    strcpy((*article_time)[record_counter], get_string);
+                    read++;
+                    break;
+                case 4:
+                    record_counter++;
+                    read = 0;
+                    break;
+                default:
+                    break;  
+                }
             }
-            switch (read)
-            {
-            case 0:
-                // fgets(testing, sizeof(testing), data);
-                // strcpy(testing, get_string);
-                strcpy(article_id[record_counter], get_string);
-                read++;
-                break;
-            case 1:
-                strcpy(article_title[record_counter], get_string);
-                read++;
-                break;
-            case 2:
-                strcpy(article_author[record_counter], get_string);
-                read++;
-                break;
-            case 3:
-                strcpy(article_time[record_counter], get_string);
-                read++;
-                break;
-            case 4:
-                record_counter++;
-                read = 0;
-                break;
-            default:
-                break;
-            }
+
         };
-        search(inputs, article_id, article_title, article_author, article_time, *total_records_count);
+        printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
+        // search(inputs, article_id, article_title, article_author, article_time, *total_records_count);
         // delete_record(article_id, article_title, article_author, article_time, inputs, total_records_count);
+        // for (int i = 0; i < *total_records_count; i++)
+        // {
+        //     printf("%s", *article_id[i]);
+        //     printf("%s", *article_title[i]);
+        //     printf("%s", *article_author[i]);
+        //     printf("%s\n", *article_time[i]);
+        // }
         fclose(data);
     }
     else if (!(find_in_inputs('v', inputs)))
@@ -327,53 +334,54 @@ void delete_record(char **article_id, char **article_title, char **article_autho
 {
     if (find_in_inputs('n', inputs))
     {
-        int change_count = 0;
+        int change_count = 0, written_indexes = 0;
         char record_to_find[80], copy_to_string[80];
+        int *indexes_to_change = (int*)malloc(sizeof(int) * (*total_records_count));
         scanf(" %[^\n]", record_to_find);
         for (int i = 0; i < *total_records_count; i++)
         {
             int is_true = 1, count = 0;
-            while (article_title[i][count] != '\n')
+            while (record_to_find[count] != '\0')
             {
                 if (article_title[i][count] != record_to_find[count])
                 {
                     is_true = 0;
-                    break;
                 }
                 count++; 
             }
             if (is_true == 1)
             {
-                change_count += 1;
+                indexes_to_change[written_indexes] = i;
+                written_indexes++;
             }
-                // for (int a = i; a < *total_records_count; i++)
-                // {
-                //     article_id[a] = article_id[a + 1];
-                //     article_title[a] = article_title[a + 1];
-                //     article_author[a] = article_author[a + 1];
-                //     article_time[a] = article_time[a + 1];
-                // }
-                // printf("%s" , article_title[i]);
-            // }
         }
-        // for (int i = *total_records_count; i > (*total_records_count - change_count); i--)
-        // {
-        //     free(article_id[i]);
-        //     free(article_title[i]);
-        //     free(article_author[i]);
-        //     free(article_time[i]);
-        // }
-        // *total_records_count -= change_count;
-        // article_id = (char **)realloc(article_id, *total_records_count * sizeof(char *));
-        // article_title = (char **)realloc(article_title, *total_records_count * sizeof(char *));
-        // article_author = (char **)realloc(article_author, *total_records_count * sizeof(char *));
-        // article_time = (char **)realloc(article_time, *total_records_count * sizeof(char *));
+        written_indexes = 0;
+        for (int index = 0; index < *total_records_count; index++)
+        {
+            for (int i = 0; i < *total_records_count; i++)
+            {
+                if(indexes_to_change[i] == index){
+                    if((index + 1) <= *total_records_count ){
+                        index++;
+                    }
+                }
+            }
+        }
+        
+        
+        for (int z = 0; z < *total_records_count; z++)
+        {
+            printf("%s" , article_id[z]);
+            printf("%s" , article_author[z]);
+            printf("%s" , article_time[z]);
+            printf("%s\n" , article_title[z]);
+        }
         printf("Vymazalo sa : %d zaznamov !" , change_count);
-        dealocate(inputs, article_id, article_title, article_author, article_time, *total_records_count);
+        // dealocate(inputs, article_id, article_title, article_author, article_time, *total_records_count);
     }
 }
 
-void dealocate(char *inputs, char **article_id, char **article_title, char **article_author, char **article_time, int records_counter)
+void dealocate(char *inputs, char ***article_id, char ***article_title, char ***article_author, char ***article_time, int records_counter)
 {
     if (find_in_inputs('n', inputs))
     {
@@ -389,23 +397,12 @@ int main()
     char user_input;
     int is_input_correct = 0, inputs_count = 1;
     int *total_records_count = (int *)malloc(sizeof(int));
-    *total_records_count = 1;
+    *total_records_count = 0;
     char correct_inputs[] = {'v', 'p', 'n', 's', 'w', 'h', 'z', 'd', 'k'};
     char *inputs = malloc(sizeof(char) * inputs_count);
 
     // Allocation of arrays
-    char **article_id = malloc(sizeof(char *) * (*total_records_count));
-    char **article_title = malloc(sizeof(char *) * (*total_records_count));
-    char **article_author = malloc(sizeof(char *) * (*total_records_count));
-    char **article_time = malloc(sizeof(char *) * (*total_records_count));
-
-    for (int i = 0; i < *total_records_count; i++)
-    {
-        article_id[i] = malloc(sizeof(char) * (11));
-        article_title[i] = malloc(sizeof(char) * (50));
-        article_author[i] = malloc(sizeof(char) * (50));
-        article_time[i] = malloc(sizeof(char) * (13));
-    }
+    char **article_id = NULL, **article_title = NULL , **article_author = NULL , **article_time = NULL;
 
     while (1)
     {
@@ -429,17 +426,7 @@ int main()
             switch (user_input)
             {
             case 'n':
-                load_file(article_id, article_title, article_author, article_time, inputs, total_records_count);
-                // testing(article_id ,  *total_records_count);
-                // printf("niecooo\n");
-                // int nieco = *total_records_count;
-                // for (int i = 0; i < nieco; i++)
-                // {
-                //     // printf("%s", article_id[i]);
-                //     // printf("%s", article_title[i]);
-                //     // printf("%s\n", article_author[i]);
-                //     // printf("%s", article_time[i]);
-                // }
+                load_file(&article_id, &article_title, &article_author, &article_time, inputs, total_records_count);
                 break;
             case 'v':
                 output(inputs, article_id, article_title, article_author, article_time, *total_records_count);
@@ -448,10 +435,10 @@ int main()
                 search(inputs, article_id, article_title, article_author, article_time, *total_records_count);
                 break;
             case 'd':
-                dealocate(inputs, article_id, article_title, article_author, article_time, *total_records_count);
+                dealocate(inputs, &article_id, &article_title, &article_author, &article_time, *total_records_count);
                 break;
             case 'k':
-                dealocate(inputs, article_id, article_title, article_author, article_time, *total_records_count);
+                // dealocate(inputs, article_id, article_title, article_author, article_time, *total_records_count);
                 free(inputs);
                 exit(1);
                 break;
