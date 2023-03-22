@@ -1,17 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// void delete_record(char **article_id, char **article_title, char **article_author, char **article_time, char *inputs, int *total_records_count);
-void dealocate(char *inputs, char ***article_id, char ***article_title, char ***article_author, char ***article_time, int records_counter);
 
 // Control functions
-void check_id(char **id_list)
+void check_id(char id_list[])
 {
-    if ((*id_list[0] == 'P' || *id_list[0] == 'U') && (*id_list[1] == 'P' || *id_list[1] == 'D'))
+    if ((id_list[0] == 'P' || id_list[0] == 'U') && (id_list[1] == 'P' || id_list[1] == 'D'))
     {
         for (int i = 2; i < 9; i++)
         {
-            if (*id_list[i] < 48 || *id_list[i] > 57)
+            if (id_list[i] < 48 || id_list[i] > 57)
             {
                 printf("ID prispevku: Nespravne ID\n");
                 return;
@@ -20,7 +18,7 @@ void check_id(char **id_list)
         printf("ID prispevku: ");
         for (int i = 0; i < 9; i++)
         {
-            printf("%c", *id_list[i]);
+            printf("%c", id_list[i]);
         }
         printf("\n");
         return;
@@ -43,43 +41,71 @@ void check_for_zeros_in_date(char number_one, char number_two, char devider)
     }
 }
 
+int find_same_records(char ***article_title, int *total_records_count, char record_to_find[]){
+    int count_of_same_records = 0;
+    for (int i = 0; i < *total_records_count; i++)
+    {
+        int is_true = 1, count = 0;
+        while (record_to_find[count] != '\0')
+        {
+            if ((*article_title)[i][count] != record_to_find[count])
+            {
+                is_true = 0;
+                break;
+            }
+            count++;
+        }
+        if (is_true == 1)
+        {
+            count_of_same_records++;
+        }
+        is_true = 1;
+    }
+    return count_of_same_records;
+}
 // Prtint function
-void print_name(char **article_authors)
+void print_name(char article_authors[] , int first_name)
 {
     for (int i = 0; i < 300; i++)
     {
-        if ((*article_authors)[i] == '\n')
+        if (article_authors[i] == '\n')
         {
             break;
         }
 
-        if ((*article_authors)[i] != '#')
+        if (article_authors[i] != '#')
         {
-            printf("%c", (*article_authors)[i]);
+            printf("%c", article_authors[i]);
         }
-        else if ((*article_authors)[i] == '#')
+        else if (article_authors[i] == '#')
         {
-            i += 2;
-            if ((*article_authors)[(i + 1)] != '\n')
+            if (first_name == 1)
             {
-                printf(", ");
+                break;
+            }else{
+                i += 2;
+                if (article_authors[(i + 1)] != '\n')
+                {
+                    printf(", ");
+                }
             }
+            
         }
     }
 }
 
-void print_date(char **article_date)
+void print_date(char article_date[])
 {
     printf("Datum a cas prezentovania: ");
-    check_for_zeros_in_date(*article_date[6], *article_date[7], '.');
-    check_for_zeros_in_date(*article_date[4], *article_date[5], '.');
+    check_for_zeros_in_date(article_date[6], article_date[7], '.');
+    check_for_zeros_in_date(article_date[4], article_date[5], '.');
     for (int i = 0; i < 4; i++)
     {
-        printf("%c", *article_date[i]);
+        printf("%c", article_date[i]);
     }
     printf(" ");
-    check_for_zeros_in_date(*article_date[8], *article_date[9], ':');
-    check_for_zeros_in_date(*article_date[10], *article_date[11], '\n');
+    check_for_zeros_in_date(article_date[8], article_date[9], ':');
+    check_for_zeros_in_date(article_date[10], article_date[11], '\n');
 }
 
 // Get functions (returns searched value)
@@ -121,16 +147,6 @@ int find_in_inputs(char input, char *input_list)
     return 0;
 }
 
-int test(char ***article_id, char ***article_title, char ***article_author, char ***article_time, int *total_records_count)
-{
-    for (int i = 0; i < *total_records_count; i++)
-    {
-        printf("%s", (*article_id)[i]);
-        printf("%s", (*article_title)[i]);
-        printf("%s", (*article_author)[i]);
-        printf("%s", (*article_time)[i]);
-    }
-}
 // Additional functions
 void deallocate_array(char ***array, int p)
 {
@@ -144,22 +160,19 @@ void deallocate_array(char ***array, int p)
 // Assigment functions
 void output(char *inputs, char ***article_id, char ***article_title, char ***article_author, char ***article_time, int *records_counter)
 {
-    // for (int z = 0; z < *records_counter; z++)
-    // {
-    //     printf("%s" , *article_id[z]);
-    //     printf("%s" , *article_author[z]);
-    //     printf("%s" , *article_time[z]);
-    //     printf("%s\n" , *article_title[z]);
-    // }
     char file_input[300];
-    if (find_in_inputs('v', inputs))
+    int line = 0;
+    if ((find_in_inputs('v', inputs)) && (find_in_inputs('n', inputs) || find_in_inputs('p', inputs)))
     {
-        printf("Sme za prvou podmienkou eeeeeeeejha!\n");
-        if (find_in_inputs('n', inputs) || find_in_inputs('p', inputs))
+        for (int i = 0; i < *records_counter; i++)
         {
-            printf("Sme za DRUHOU podmienkou eeeeeeeejha!\n");
+            check_id((*article_id)[i]);
+            printf("Nazov prispevku: %sMena Autorov: ", (*article_title)[i]);
+            print_name((*article_author)[i] , 0);
+            printf("\n");
+            print_date((*article_time)[i]);
+            printf("\n");
         }
-        printf("vypisalo to cez listy eeeejha!\n");
     }
     else
     {
@@ -173,45 +186,60 @@ void output(char *inputs, char ***article_id, char ***article_title, char ***art
         while (!feof(data))
         {
             fgets(file_input, sizeof(file_input), data);
-            // printf("%s", file_input);
+            if (line == 0)
+            {
+                printf("ID prispevku: %s", file_input);
+            }
+            else if (line == 1)
+            {
+                printf("Nazov prispevku: %s", file_input);
+            }
+            else if (line == 2)
+            {
+                printf("Mena Autorov: ");
+                print_name(file_input , 0);
+                printf("\n");
+            }
+            else if (line == 3)
+            {
+                print_date(file_input);
+            }
+            else if (line == 4)
+            {
+                printf("%s", file_input);
+                line = -1;
+            }
+            line++;
         }
-        printf("vypisalo to cez subor naaaaah!\n");
+        printf("\n");
         fclose(data);
     }
 }
 
 void add_record(char ***article_id, char ***article_title, char ***article_author, char ***article_time, int *total_records_count)
 {
-    char id[12], title[81], author[81], time[14];
-
     *total_records_count += 1;
-    (*article_id) = (char **)realloc(article_id, *total_records_count * sizeof(char *));
-    (*article_title) = (char **)realloc(article_title, *total_records_count * sizeof(char *));
-    (*article_author) = (char **)realloc(article_author, *total_records_count * sizeof(char *));
-    (*article_time) = (char **)realloc(article_time, *total_records_count * sizeof(char *));
+    (*article_id) = realloc((*article_id), *total_records_count * sizeof(char **));
+    (*article_title) = realloc((*article_title), *total_records_count * sizeof(char **));
+    (*article_author) = realloc((*article_author), *total_records_count * sizeof(char **));
+    (*article_time) = realloc((*article_time), *total_records_count * sizeof(char **));
 
-    (*article_id)[*total_records_count - 1] = malloc(sizeof(char) * (11));
-    (*article_title)[*total_records_count - 1] = malloc(sizeof(char) * (80));
-    (*article_author)[*total_records_count - 1] = malloc(sizeof(char) * (80));
-    (*article_time)[*total_records_count - 1] = malloc(sizeof(char) * (13));
+    (*article_id)[(*total_records_count) - 1] = malloc(sizeof(char *) * 11);
+    (*article_title)[(*total_records_count) - 1] = malloc(sizeof(char *) * 150);
+    (*article_author)[(*total_records_count) - 1] = malloc(sizeof(char *) * 300);
+    (*article_time)[(*total_records_count) - 1] = malloc(sizeof(char *) * 13);
 
     scanf(" %s", (*article_id)[*total_records_count - 1]);
     scanf(" %[^\n]", (*article_title)[*total_records_count - 1]);
     scanf(" %[^\n]", (*article_author)[*total_records_count - 1]);
     scanf(" %s", (*article_time)[*total_records_count - 1]);
 
-    // strcpy(article_id[*total_records_count - 1] , id);
-    // strcpy(article_title[*total_records_count - 1] , title);
-    // strcpy(article_author[*total_records_count - 1] , author);
-    // strcpy(article_time[*total_records_count - 1] , time);
+    strcat((*article_time)[*total_records_count - 1], "\n");
+    strcat((*article_title)[*total_records_count - 1], "\n");
+    strcat((*article_author)[*total_records_count - 1], "\n");
+    strcat((*article_time)[*total_records_count - 1], "\n");
 
-    for (int i = 0; i < *total_records_count; i++)
-    {
-        printf("%s", (*article_id)[i]);
-        printf("%s", (*article_title)[i]);
-        printf("%s", (*article_author)[i]);
-        printf("%s\n", (*article_time)[i]);
-    }
+    printf("Zaznam sa podarilo pridat\n");
 }
 
 int load_file(char ***article_id, char ***article_title, char ***article_author, char ***article_time, char *inputs, int *total_records_count)
@@ -221,7 +249,7 @@ int load_file(char ***article_id, char ***article_title, char ***article_author,
 
     if (find_in_inputs('v', inputs))
     {
-        if (find_in_inputs('n', inputs))
+        if (find_in_inputs('n', inputs) || *total_records_count != 0)
         {
             deallocate_array(article_id, *total_records_count);
             deallocate_array(article_title, *total_records_count);
@@ -237,10 +265,10 @@ int load_file(char ***article_id, char ***article_title, char ***article_author,
 
         for (int i = 0; i < (*total_records_count); i++)
         {
-            (*article_id)[i] = malloc(sizeof(char *) * (15));
-            (*article_title)[i] = malloc(sizeof(char *) * (80));
-            (*article_author)[i] = malloc(sizeof(char *) * (80));
-            (*article_time)[i] = malloc(sizeof(char *) * (15));
+            (*article_id)[i] = malloc(sizeof(char *) * 11);
+            (*article_title)[i] = malloc(sizeof(char *) * 150);
+            (*article_author)[i] = malloc(sizeof(char *) * 300);
+            (*article_time)[i] = malloc(sizeof(char *) * 13);
         }
         FILE *data;
         data = fopen("KonferencnyZoznam.txt", "r");
@@ -283,84 +311,118 @@ int load_file(char ***article_id, char ***article_title, char ***article_author,
 
 void search(char *inputs, char ***article_id, char ***article_title, char ***article_author, char ***article_time, int records_counter)
 {
-    char date[8], id[3];
-    scanf("%s %s", date, id);
-    for (int i = 0; i < records_counter; i++)
+    if (find_in_inputs('v' , inputs))
     {
-        int is_true = 1;
-        if (*article_id[i][0] == id[0] && *article_id[i][1] == id[1])
+        char date[8], id[3];
+        int count = 0;
+        scanf("%s %s", date, id);
+        for (int i = 0; i < records_counter; i++)
         {
-            for (int a = 0; a < 8; a++)
+            int is_true = 1;
+            if ((*article_id)[i][0] == id[0] && (*article_id)[i][1] == id[1])
             {
-                if (!(date[a] == *article_time[i][a]))
+                for (int a = 0; a < 8; a++)
                 {
-                    is_true = 0;
+                    if (!(date[a] == (*article_time)[i][a]))
+                    {
+                        is_true = 0;
+                    }
                 }
-            }
-            if (is_true == 1)
-            {
-                for (int e = 8; e < 12; e++)
+                if (is_true == 1)
                 {
-                    printf("%c", *article_time[i][e]);
+                    count ++;
+                    for (int e = 8; e < 12; e++)
+                    {
+                        printf("%c", (*article_time)[i][e]);
+                    }
+                    printf("  ");
+                    print_name((*article_author)[i] , 1);
+                    printf("\t%s", (*article_title)[i]);
                 }
-                printf("  ");
-                print_name(article_author[i]);
-                printf("\t%s", *article_title[i]);
             }
         }
+        if (count == 0)
+        {
+            printf("Pre dany vstup neexistuju zaznamy\n");
+        }
+        
+    }else{
+        printf("Polia nie su vytvorene\n");
     }
+    
 }
 
-// void delete_record(char ***article_id, char ***article_title, char ***article_author, char ***article_time, char *inputs, int *total_records_count)
-// {
-//     if (find_in_inputs('n', inputs))
-//     {
-//         int change_count = 0, written_indexes = 0;
-//         char record_to_find[80], copy_to_string[80];
-//         int *indexes_to_change = (int*)malloc(sizeof(int) * (*total_records_count));
-//         scanf(" %[^\n]", record_to_find);
-//         for (int i = 0; i < *total_records_count; i++)
-//         {
-//             int is_true = 1, count = 0;
-//             while (record_to_find[count] != '\0')
-//             {
-//                 if (*article_title[i][count] != record_to_find[count])
-//                 {
-//                     is_true = 0;
-//                 }
-//                 count++;
-//             }
-//             if (is_true == 1)
-//             {
-//                 indexes_to_change[written_indexes] = i;
-//                 written_indexes++;
-//             }
-//         }
-//         written_indexes = 0;
-//         for (int index = 0; index < *total_records_count; index++)
-//         {
-//             for (int i = 0; i < *total_records_count; i++)
-//             {
-//                 if(indexes_to_change[i] == index){
-//                     if((index + 1) <= *total_records_count ){
-//                         index++;
-//                     }
-//                 }
-//             }
-//         }
-//         printf("Vymazalo sa : %d zaznamov !" , change_count);
-//         // dealocate(inputs, article_id, article_title, article_author, article_time, *total_records_count);
-//     }
-// }
-
-void dealocate(char *inputs, char ***article_id, char ***article_title, char ***article_author, char ***article_time, int records_counter)
+void delete_record(char ***article_id, char ***article_title, char ***article_author, char ***article_time, char *inputs, int *total_records_count)
 {
     if (find_in_inputs('n', inputs))
     {
-        deallocate_array(article_id, records_counter);
-        deallocate_array(article_title, records_counter);
-        deallocate_array(article_author, records_counter);
-        deallocate_array(article_time, records_counter);
+        int can_break = 0, nieco = 0;
+        char record_to_find[150], copy_to_string[150];
+        scanf(" %[^\n]", record_to_find);
+        int count_of_same_records = find_same_records(article_title, total_records_count, record_to_find);
+        while (can_break != 1)
+        {
+            // printf("%d" , ++nieco);
+            int deleted_records = 0;
+            for (int i = 0; i < *total_records_count; i++)
+            {
+                int is_true = 1, count = 0;
+                while (record_to_find[count] != '\0')
+                {
+                    if ((*article_title)[i][count] != record_to_find[count])
+                    {
+                        is_true = 0;
+                        break;
+                    }
+                    count++;
+                }
+                if (is_true == 1)
+                {
+                    deleted_records++;
+                    for (int a = i; a < *total_records_count -1; a++)
+                    {
+                        strcpy((*article_id)[a] , (*article_id)[a + 1]);
+                        strcpy((*article_title)[a] , (*article_title)[a + 1]);
+                        strcpy((*article_author)[a] , (*article_author)[a + 1]);
+                        strcpy((*article_time)[a] , (*article_time)[a + 1]);
+                    }
+                }
+            }
+
+            if (deleted_records == 0)
+            {
+                can_break = 1;
+                break;
+            }
+        }
+        for (int i = (*total_records_count) - count_of_same_records; i < *total_records_count; i++)
+        {
+            free((*article_id)[i]);
+            free((*article_title)[i]);
+            free((*article_author)[i]);
+            free((*article_time)[i]);
+        }
+        (*total_records_count) -= count_of_same_records;
+
+        (*article_id) = realloc((*article_id), *total_records_count * sizeof(char **));
+        (*article_title) = realloc((*article_title), *total_records_count * sizeof(char **));
+        (*article_author) = realloc((*article_author), *total_records_count * sizeof(char **));
+        (*article_time) = realloc((*article_time), *total_records_count * sizeof(char **));
+    
+        printf("Vymazalo sa : %d zaznamov !" , count_of_same_records);
+    }
+    // dealocate(inputs, article_id, article_title, article_author, article_time, *total_records_count);
+}
+
+void dealocate(char *inputs, char ***article_id, char ***article_title, char ***article_author, char ***article_time, int *records_counter)
+{
+    if (find_in_inputs('n', inputs))
+    {
+        deallocate_array(article_id, *records_counter);
+        deallocate_array(article_title, *records_counter);
+        deallocate_array(article_author, *records_counter);
+        deallocate_array(article_time, *records_counter);
+        *records_counter = 0;
     }
 }
 
@@ -406,10 +468,16 @@ int main()
                 search(inputs, &article_id, &article_title, &article_author, &article_time, *total_records_count);
                 break;
             case 'd':
-                dealocate(inputs, &article_id, &article_title, &article_author, &article_time, *total_records_count);
+                dealocate(inputs, &article_id, &article_title, &article_author, &article_time, total_records_count);
+                break;
+            case 'p':
+                add_record(&article_id, &article_title, &article_author, &article_time, total_records_count);
+                break;
+            case 'z':
+                delete_record(&article_id, &article_title, &article_author, &article_time, inputs, total_records_count);
                 break;
             case 'k':
-                dealocate(inputs, &article_id, &article_title, &article_author, &article_time, *total_records_count);
+                dealocate(inputs, &article_id, &article_title, &article_author, &article_time, total_records_count);
                 free(inputs);
                 exit(1);
                 break;
