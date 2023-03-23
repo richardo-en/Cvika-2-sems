@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 // Control functions
 void check_id(char id_list[])
@@ -63,6 +64,27 @@ int find_same_records(char ***article_title, int *total_records_count, char reco
     }
     return count_of_same_records;
 }
+
+int check_for_same_name(char ***writers, char name[], int index, int writes_count){
+    int count_of_same_records = 0, is_true = 0;
+    for (int i = 0; i < writes_count; i++)
+    {
+        is_true = 0;
+        for (int letter = 0; letter < index; letter++)
+        {
+            if ((*writers)[i][letter] != name[letter])
+            {
+                is_true = 1;
+                break;
+            }
+        }
+        if (is_true == 0)
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
 // Prtint function
 void print_name(char article_authors[] , int first_name)
 {
@@ -89,7 +111,7 @@ void print_name(char article_authors[] , int first_name)
                     printf(", ");
                 }
             }
-            
+
         }
     }
 }
@@ -345,11 +367,58 @@ void search(char *inputs, char ***article_id, char ***article_title, char ***art
         {
             printf("Pre dany vstup neexistuju zaznamy\n");
         }
-        
+
     }else{
         printf("Polia nie su vytvorene\n");
     }
-    
+
+}
+
+void print_writers(char ***article_author, char ***writers, char *inputs , int *writers_count, int *total_records_count){
+    char name[300];
+    for (int i = 0; i < *writers_count; ++i) {
+        free((*writers)[i]);
+    }
+    free((*writers));
+    *writers_count = 0;
+
+    for (int i = 0; i < *total_records_count; i++)
+    {
+        char ch;
+        int index = 0, author_index = 0;
+        while ((*article_author)[i][author_index] != '\n')
+        {
+            if ((*article_author)[i][author_index] == '#')
+            {
+                if((*article_author)[i][author_index] != '\n'){
+                    strupr(name);
+                    if (check_for_same_name(writers, name, index, (*writers_count)))
+                    {
+                        (*writers_count)++;
+                        (*writers) = realloc((*writers) , sizeof(char **) * (*writers_count));
+                        (*writers)[(*writers_count)-1] = malloc((index) * sizeof(char));
+                        strcpy((*writers)[(*writers_count)-1], name);
+                    }
+                    if ((*article_author)[i][author_index + 3] == '\n')
+                    {
+                        break;
+                    }else{
+                        author_index += 3;
+                        index = 0;
+                    }
+                }
+            }else if((*article_author)[i][author_index] != '#'){
+                name[index] = (*article_author)[i][author_index];
+                index++;
+                author_index++;
+            }
+        }
+    }
+
+    for (int i = 0; i < *writers_count; i++)
+    {
+        printf("%s\n" , (*writers)[i]);
+    }
 }
 
 void delete_record(char ***article_id, char ***article_title, char ***article_author, char ***article_time, char *inputs, int *total_records_count)
@@ -408,8 +477,8 @@ void delete_record(char ***article_id, char ***article_title, char ***article_au
         (*article_title) = realloc((*article_title), *total_records_count * sizeof(char **));
         (*article_author) = realloc((*article_author), *total_records_count * sizeof(char **));
         (*article_time) = realloc((*article_time), *total_records_count * sizeof(char **));
-    
-        printf("Vymazalo sa : %d zaznamov !" , count_of_same_records);
+
+        printf("Vymazalo sa : %d zaznamov !\n" , count_of_same_records);
     }
     // dealocate(inputs, article_id, article_title, article_author, article_time, *total_records_count);
 }
@@ -432,58 +501,63 @@ int main()
     int is_input_correct = 0, inputs_count = 1;
     int *total_records_count = (int *)malloc(sizeof(int));
     *total_records_count = 0;
+    int *writers_count = (int *)malloc(sizeof(int));
+    *writers_count = 0;
     char correct_inputs[] = {'v', 'p', 'n', 's', 'w', 'h', 'z', 'd', 'k'};
-    char *inputs = malloc(sizeof(char) * inputs_count);
+    char *inputs = malloc(sizeof(char) * 3);
 
     // Allocation of arrays
-    char **article_id = NULL, **article_title = NULL, **article_author = NULL, **article_time = NULL;
+    char **article_id = NULL, **article_title = NULL, **article_author = NULL, **article_time = NULL, **writers = NULL;
 
-    while (1)
-    {
-        scanf(" %c", &user_input);
-        for (int i = 0; i < 9; i++)
-        {
-            if (user_input == correct_inputs[i])
-            {
-                is_input_correct = 1;
-                inputs = realloc(inputs, sizeof(char) * ++inputs_count);
-            }
-        }
+   while (1)
+   {
+       scanf(" %c", &user_input);
+       for (int i = 0; i < 9; i++)
+       {
+           if (user_input == correct_inputs[i])
+           {
+               is_input_correct = 1;
+               inputs = realloc(inputs, sizeof(char) * ++inputs_count);
+           }
+       }
 
-        if (is_input_correct == 0)
-        {
-            printf("Invalid input\n");
-        }
-        else
-        {
-            switch (user_input)
-            {
-            case 'n':
-                load_file(&article_id, &article_title, &article_author, &article_time, inputs, total_records_count);
-                break;
-            case 'v':
-                output(inputs, &article_id, &article_title, &article_author, &article_time, total_records_count);
-                break;
-            case 's':
-                search(inputs, &article_id, &article_title, &article_author, &article_time, *total_records_count);
-                break;
-            case 'd':
-                dealocate(inputs, &article_id, &article_title, &article_author, &article_time, total_records_count);
-                break;
-            case 'p':
-                add_record(&article_id, &article_title, &article_author, &article_time, total_records_count);
-                break;
-            case 'z':
-                delete_record(&article_id, &article_title, &article_author, &article_time, inputs, total_records_count);
-                break;
-            case 'k':
-                dealocate(inputs, &article_id, &article_title, &article_author, &article_time, total_records_count);
-                free(inputs);
-                exit(1);
-                break;
-            }
-            inputs[inputs_count - 1] = user_input;
-        }
-    }
+       if (is_input_correct == 0)
+       {
+           printf("Invalid input\n");
+       }
+       else
+       {
+           switch (user_input)
+           {
+           case 'n':
+               load_file(&article_id, &article_title, &article_author, &article_time, inputs, total_records_count);
+               break;
+           case 'v':
+               output(inputs, &article_id, &article_title, &article_author, &article_time, total_records_count);
+               break;
+           case 's':
+               search(inputs, &article_id, &article_title, &article_author, &article_time, *total_records_count);
+               break;
+           case 'd':
+               dealocate(inputs, &article_id, &article_title, &article_author, &article_time, total_records_count);
+               break;
+           case 'p':
+               add_record(&article_id, &article_title, &article_author, &article_time, total_records_count);
+               break;
+           case 'z':
+               delete_record(&article_id, &article_title, &article_author, &article_time, inputs, total_records_count);
+               break;
+           case 'w':
+               print_writers(&article_author, &writers, inputs, writers_count, total_records_count);
+               break;
+           case 'k':
+               dealocate(inputs, &article_id, &article_title, &article_author, &article_time, total_records_count);
+               free(inputs);
+               exit(1);
+               break;
+           }
+           inputs[inputs_count - 1] = user_input;
+       }
+   }
     return 0;
 }
