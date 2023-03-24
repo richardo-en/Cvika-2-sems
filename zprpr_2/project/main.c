@@ -376,48 +376,59 @@ void search(char *inputs, char ***article_id, char ***article_title, char ***art
 
 void print_writers(char ***article_author, char ***writers, char *inputs , int *writers_count, int *total_records_count){
     char name[300];
-    for (int i = 0; i < *writers_count; ++i) {
-        free((*writers)[i]);
-    }
-    free((*writers));
-    *writers_count = 0;
-
-    for (int i = 0; i < *total_records_count; i++)
+    if (*total_records_count == 0)
     {
-        char ch;
-        int index = 0, author_index = 0;
-        while ((*article_author)[i][author_index] != '\n')
+        printf("Polia nie su vytvorene\n");
+    }else{
+        if (find_in_inputs('w' , inputs))
         {
-            if ((*article_author)[i][author_index] == '#')
+            deallocate_array(writers , (*writers_count+1));
+            *writers_count = 0;
+        }
+        
+        for (int i = 0; i < *total_records_count; i++)
+        {
+            char ch;
+            int index = 0, author_index = 0;
+            while ((*article_author)[i][author_index] != '\n')
             {
-                if((*article_author)[i][author_index] != '\n'){
-                    strupr(name);
-                    if (check_for_same_name(writers, name, index, (*writers_count)))
-                    {
-                        (*writers_count)++;
-                        (*writers) = realloc((*writers) , sizeof(char **) * (*writers_count));
-                        (*writers)[(*writers_count)-1] = malloc((index) * sizeof(char));
-                        strcpy((*writers)[(*writers_count)-1], name);
+                if ((*article_author)[i][author_index] == '#')
+                {
+                    if((*article_author)[i][author_index] != '\n'){
+                        strupr(name);
+                        if (check_for_same_name(writers, name, index, (*writers_count)))
+                        {
+                            (*writers_count)++;
+                            if ((*writers_count) == 1)
+                            {
+                                (*writers) = malloc(sizeof(char **) * (*writers_count));
+                            }else{
+                                (*writers) = realloc((*writers) , sizeof(char **) * (*writers_count));
+                            }
+                            (*writers)[(*writers_count)-1] = malloc((index) * sizeof(char));
+                            strcpy((*writers)[(*writers_count)-1], name);
+                            for (int j = 0; j < index; j++)
+                            {
+                                name[j] = ' ';
+                            }
+                            
+                            printf("%s\n", (*writers)[(*writers_count)-1]);
+                        }
+                        if ((*article_author)[i][author_index + 3] == '\n')
+                        {
+                            break;
+                        }else{
+                            author_index += 3;
+                            index = 0;
+                        }
                     }
-                    if ((*article_author)[i][author_index + 3] == '\n')
-                    {
-                        break;
-                    }else{
-                        author_index += 3;
-                        index = 0;
-                    }
+                }else if((*article_author)[i][author_index] != '#'){
+                    name[index] = (*article_author)[i][author_index];
+                    index++;
+                    author_index++;
                 }
-            }else if((*article_author)[i][author_index] != '#'){
-                name[index] = (*article_author)[i][author_index];
-                index++;
-                author_index++;
             }
         }
-    }
-
-    for (int i = 0; i < *writers_count; i++)
-    {
-        printf("%s\n" , (*writers)[i]);
     }
 }
 
@@ -483,7 +494,7 @@ void delete_record(char ***article_id, char ***article_title, char ***article_au
     // dealocate(inputs, article_id, article_title, article_author, article_time, *total_records_count);
 }
 
-void dealocate(char *inputs, char ***article_id, char ***article_title, char ***article_author, char ***article_time, int *records_counter)
+void dealocate(char *inputs, char ***article_id, char ***article_title, char ***article_author, char ***article_time, char ***writers, int *writers_counter, int *records_counter)
 {
     if (find_in_inputs('n', inputs))
     {
@@ -491,8 +502,64 @@ void dealocate(char *inputs, char ***article_id, char ***article_title, char ***
         deallocate_array(article_title, *records_counter);
         deallocate_array(article_author, *records_counter);
         deallocate_array(article_time, *records_counter);
+        deallocate_array(writers, *writers_counter);
         *records_counter = 0;
+        *writers_counter = 0;
     }
+}
+
+void histogram(char *inputs, char ***article_id, char ***article_time, int *total_records_count){
+    if (find_in_inputs('v' , inputs) && *total_records_count != 0)
+    {
+        int time = 0, up_count = 0, ud_count = 0, pp_count = 0, pd_count = 0;
+        char string_to_campare[2];
+        printf("  hodina\tUP\tUD\tPP\tPD\n");
+        for (int i = 0; i < 12; i++)
+        {
+            if (time < 9)
+            {
+                printf("0%d:00 - 0%d:59:\t" , time , (time+1));
+            }else if (time == 9)
+            {
+                printf("0%d:00 - %d:59:\t" , time , (time+1));
+            }else if (time > 9)
+            {
+                printf("%d:00 - %d:59:\t" , time , (time+1));
+            }
+            for (int a = 0; a < *total_records_count; a++)
+            {
+                string_to_campare[0] = (*article_time)[a][8];
+                string_to_campare[1] = (*article_time)[a][9];
+                int time_in_int = atoi(string_to_campare);
+                if (time_in_int == time || time_in_int == (time+1))
+                {
+                    string_to_campare[0] = (*article_id)[a][0];
+                    string_to_campare[1] = (*article_id)[a][1];
+                    if (strcmp(string_to_campare , "UP") == 1)
+                    {
+                        up_count++;
+                    }else if (strcmp(string_to_campare , "UD") == 1)
+                    {
+                        ud_count++;
+                    }else if (strcmp(string_to_campare , "PP") == 1)
+                    {
+                        pp_count++;
+                    }else if (strcmp(string_to_campare , "PD") == 1)
+                    {
+                        pd_count++;
+                    }
+                }
+                
+            }
+            printf("%d\t%d\t%d\t%d\n" , up_count, ud_count, pp_count, pd_count);
+            up_count = 0, ud_count = 0, pp_count = 0, pd_count = 0;
+            time += 2;
+        }
+    }else{
+        printf(" Polia nie su vytvorene\n");
+    }
+    
+    
 }
 
 int main()
@@ -539,7 +606,7 @@ int main()
                search(inputs, &article_id, &article_title, &article_author, &article_time, *total_records_count);
                break;
            case 'd':
-               dealocate(inputs, &article_id, &article_title, &article_author, &article_time, total_records_count);
+               dealocate(inputs, &article_id, &article_title, &article_author, &article_time, &writers, writers_count, total_records_count);
                break;
            case 'p':
                add_record(&article_id, &article_title, &article_author, &article_time, total_records_count);
@@ -550,8 +617,11 @@ int main()
            case 'w':
                print_writers(&article_author, &writers, inputs, writers_count, total_records_count);
                break;
+           case 'h':
+               histogram(inputs, &article_id, &article_time, total_records_count);
+               break;
            case 'k':
-               dealocate(inputs, &article_id, &article_title, &article_author, &article_time, total_records_count);
+               dealocate(inputs, &article_id, &article_title, &article_author, &article_time, &writers, writers_count, total_records_count);
                free(inputs);
                exit(1);
                break;
