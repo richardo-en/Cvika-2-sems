@@ -28,6 +28,33 @@ void check_id(char id_list[])
     }
 }
 
+void check_for_last_record(char ***article_id, char ***article_title, char ***article_author, char ***article_time, int *total_records_count, char record_to_find[]){
+    while (1)
+    {
+        if (strcmp((*article_title)[*total_records_count-1] , record_to_find) == 1)
+        {
+            free((*article_id)[*total_records_count -1]);
+            free((*article_title)[*total_records_count -1]);
+            free((*article_author)[*total_records_count -1]);
+            free((*article_time)[*total_records_count -1]);
+            if ((*total_records_count -1) > 0)
+            {
+                *total_records_count -= 1;
+            }else{
+                *total_records_count = 0;
+                free((*article_id));
+                free((*article_title));
+                free((*article_author));
+                free((*article_time));
+            } 
+        }else{
+            break;
+        }
+        
+    }
+    
+}
+
 // Decides if zero needed to be printed out or no for function print_date()
 void check_for_zeros_in_date(char number_one, char number_two, char devider)
 {
@@ -52,6 +79,7 @@ int find_same_records(char ***article_title, int *total_records_count, char reco
     for (int i = 0; i < *total_records_count; i++)
     {
         int is_true = 1, count = 0;
+        
         while (record_to_find[count] != '\0')
         {
             if ((*article_title)[i][count] != record_to_find[count])
@@ -498,6 +526,8 @@ void delete_record(char ***article_id, char ***article_title, char ***article_au
         scanf(" %[^\n]", record_to_find);
         // Get count of same records based on user input
         int count_of_same_records = find_same_records(article_title, total_records_count, record_to_find);
+        //If is last record of array same as user input remove it otherwise it will make infinit loop
+        check_for_last_record(article_id, article_title, article_author, article_time, total_records_count, record_to_find);
         // While loop only breaks when count of deleted records is equal to 0
         while (can_break != 1)
         {
