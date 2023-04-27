@@ -1,0 +1,43 @@
+Úloha 5.1: Vytvorte program, ktorý pre nezáporné celé číslo N na vstupe
+vykreslí hadíka z písmen malej anglickej abecedy (znaky: a, b, c, ...,z) v
+dvojrozmernej matici N x N podľa ukážky nižšie. Písmenká sú v matici v
+abecednom poradí: od a do z, pričom za písmenkom z nasleduje opäť a. Zo
+štandardného vstupu program spracuje postupne všetky čísla.
+Ukážka vstupu:
+3
+6
+Výstup pre ukážkový vstup:
+a b c
+f e d
+g h i
+a b c d e f
+l k j i h g
+m n o p q r
+x w v u t s
+y z a b c d
+j i h g f e
+
+
+Úloha 5.2: Vytvorte program, ktorý zistí, či je daný štvorec magický. Štvorec je
+magický vtedy, keď súčet prvkov vo všetkých riadkoch, stĺpcoch a
+uhlopriečkach je rovnaký. Program vytvorí staticky pole N × N prvkov (napr. N
+= 20). Potom zo štandardného vstupu načíta rozmer štvorca n (pričom n <= N)
+a do statického poľa načíta prvky štvorca. Ak bude n < N, nevyužije sa celý
+štvorec, ale len jeho čast’. Ak je n > N, program skončí s chybovou správou.
+Potom program vo funkcii int magicky() zistí, či je štvorec magický. Nakoniec
+program na obrazovku vypíše výsledok.
+Príklady magických štvorcov:
+8 1 6
+3 5 7
+4 9 2
+16 3 2 13
+5 10 11 8
+9 6 7 12
+4 15 14 1
+
+
+Úloha 5.3: Vytvorte program, ktorý načíta N viet zo vstupu do poľa reťazcov
+(alokáciu poľa riešte dynamicky). Následne vypíšte koľko znakov obsahuje
+každá veta, vypíšte vety v ktorých sa nachádza aspoň jeden výskyt písmena
+‘A’ a slova “ako“ (pozn. vety vpisujte tak aby ste si mohli otestovať správnosť
+programu).

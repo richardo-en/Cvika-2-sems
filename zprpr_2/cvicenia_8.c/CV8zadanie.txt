@@ -1,0 +1,21 @@
+Úloha 8.1: Vrátnik v kine dostal za úlohu zistiť, kto chodí do kina najčastejšie.
+Pomôžte mu a napíšte program, ktorý to spraví namiesto neho. Na vstupe sú
+mená, každé tvorí jeden reťazec bez medzier. Na výstup napíšte meno, ktoré
+sa na vstupe vyskytovalo najčastejšie. Predpokladajte, že do kina chodí
+najviac 100 rôznych ľudí.
+Pomôcka:
+Na porovnanie reťazcov môžete použiť funkciu strcmp() z knižnice string.h -
+http://www.cplusplus.com/reference/cstring/strcmp/
+
+Úloha 8.2: Vytvorte (dynamické) pole záznamov o tovare v potravinách.
+Jednotlivé záznamy majú obsahovať názov tovaru, názov výrobcu, počet
+kusov a jednotkovú cenu. Zoznam udržiavajte stále usporiadaný podľa názvov
+tovarov. Umožnite používateľovi pridať nový tovar. Na prácu s dynamickým
+poľom záznamov využívajte ukazateľovú aritmetiku. Pomôcky: Pri pridávaní
+záznamu do poľa, je potrebné nájsť miesto, kam sa má nový záznam pridávať.
+Všetky záznamy, od tejto pozície ďalej, posunúť na pozíciu o jedno väčšiu a
+na voľné miesto zapísať nový záznam.
+Na porovnanie reťazcov môžete použiť funkciu strcmp() z knižnice string.h -
+ttp://www.cplusplus.com/reference/cstring/strcmp/
+Na kopírovanie reťazcov môžete použiť funkciu strcpy() z knižnice string.h -
+http://www.cplusplus.com/reference/cstring/strcpy/
