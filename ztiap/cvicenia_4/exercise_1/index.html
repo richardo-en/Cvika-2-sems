@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/cvicenia_4/exercise_1/static/style.css">
+    <title>Exercise</title>
+  </head>
+  <body>
+    <section id="section_1">
+      <canvas id="canvas" width="1000px" height="500px"></canvas>
+    </section>
+    <div class="container">
+      <section id="controll_buttons">
+        <button id="button_up">Up</button>
+        <div>
+          <button id="button_left">Left</button>
+          <button id="button_right">Right</button>
+        </div>
+        <button id="button_down">Down</button>
+      </section>
+      <seciton id="health">
+        <h1>
+          Hrac: <p id="player_health"></p>
+        </h1>
+        <h1>
+          Nepriatel: <p id="enemy_1_health"></p>
+        </h1>
+        <h1>
+          Nepriatel 2: <p id="enemy_2_health"></p>
+        </h1>
+      </seciton>
+    </div>
+
+    <script type="module" src="index.js"></script>
+    <script type="module" src="controller/controller.js"></script>
+  </body>
+</html>

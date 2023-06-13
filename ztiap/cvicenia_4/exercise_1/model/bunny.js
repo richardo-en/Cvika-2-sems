@@ -1,4 +1,4 @@
-import { EnemyWithPositions } from './enemy.js';
+import { EnemyWithPositions } from "./enemy.js";
 export class Bunny extends EnemyWithPositions {
     constructor() {
         super()

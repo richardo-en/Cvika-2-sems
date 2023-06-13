@@ -1,7 +1,7 @@
 import { EnemyWithPositions } from './enemy.js';
 export class Destroyer extends EnemyWithPositions {
-  constructor() {
-    super()
+  constructor(color) {
+    super(color)
     this.name = "Pinky Ass Destroyer";
   }
 

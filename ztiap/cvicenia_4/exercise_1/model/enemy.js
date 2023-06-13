@@ -19,17 +19,17 @@ export class Enemy {
       return console.log("\nAttack wasn't fully blocked. " + object_name + " health is " + this.enemy_health + ".");
     }
   }
-
 }
 
 export class EnemyWithPositions extends Enemy {
-  constructor() {
+  constructor(color) {
     super();
     this.position = {
       "position_x": 100 - get_attack_range(),
       "position_y": 100 - get_attack_range()
-    }
+    };
     this.attack_range = get_attack_range();
+    this.color = color;
   }
 
   jump() {
@@ -43,15 +43,15 @@ export class EnemyWithPositions extends Enemy {
   get position_x() {
     return this.position.position_x;
   }
-
+  
   set position_x(new_x) {
     this.position.position_x = new_x;
   }
-
+  
   get position_y() {
     return this.position.position_y;
   }
-
+  
   set position_y(new_y) {
     this.position.position_y = new_y;
   }
@@ -59,8 +59,20 @@ export class EnemyWithPositions extends Enemy {
   get attack_range() {
     return this.attack_range;
   }
-
+  
   set attack_range(new_range) {
     super.attack_range = new_range;
+  }
+  
+  draw_enemy(){
+    let canvas = document.getElementById("canvas");
+    let context = canvas.getContext("2d");
+    let radius = 10;
+  
+    context.beginPath();
+    context.arc(canvas.width - 12.5, canvas.height - 12.5, radius, 0, 2 * Math.PI, false);
+    context.fillStyle = this.color;
+    context.fill();
+    context.closePath();
   }
 }
