@@ -1,0 +1,9 @@
+# prevodník z BCD8421 do BCD8421 +3
+A = (b&c&!d) | (b&d) | (a);
+
+B = (b&!c&!d) | (!b&c&!d) | (!b&d);
+
+C = (c&d) | (!c&!d);
+
+D = (!b&c&!d) | (b&c&!d) | (!c&!d);
+
